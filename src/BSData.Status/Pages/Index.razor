@@ -1,7 +1,104 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+<h1>Repositories</h1>
 
-Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<table class="table">
+    <thead>
+        <tr>
+            <th>URL</th>
+            <th>Publish status</th>
+            <th>Latest release</th>
+            <th>Activity</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var repo in repos)
+        {
+            <tr>
+                <td>
+                    @*URL*@
+                    <a href="https://github.com/BSData/@repo">@repo</a>
+                </td>
+                <td>
+                    @*Publish status*@
+                    <img alt="GitHub 'Publish catpkg' Workflow Status" src="https://github.com/BSData/@repo/workflows/Publish%20catpkg/badge.svg">
+                </td>
+                <td>
+                    @*Latest release*@
+                    <img alt="GitHub release date" src="https://img.shields.io/github/v/release-date/BSData/@repo">
+                    <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/BSData/@repo">
+                    <img alt="GitHub commits since latest release (by date)" src="https://img.shields.io/github/commits-since/BSData/@repo/latest">
+                </td>
+                <td>
+                    @*Activity*@
+                    <img alt="GitHub issues" src="https://img.shields.io/github/issues/BSData/@repo">
+                    <img alt="GitHub last commit (master)" src="https://img.shields.io/github/last-commit/BSData/@repo/master">
+                    <img alt="GitHub commit activity per year" src="https://img.shields.io/github/commit-activity/year/BSData/@repo">
+                    <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/BSData/@repo">
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<string> repos = new List<string>
+    {
+        "adeptus-titanicus",
+        "aeronautica-imperialis",
+        "battlefleetgothic",
+        "black-seas",
+        "bloodbowl",
+        "boltaction",
+        "bushido",
+        "carnevale",
+        "carniverse",
+        "cav-strike-operations",
+        "dc-universe",
+        "deadzone",
+        "dropfleet-commander",
+        "fallout-wasteland-warfare",
+        "flamesofwar",
+        "freebooters-fate",
+        "gaslands",
+        "gates-of-antares",
+        "halo-fleet-battles",
+        "harry-potter",
+        "horus-heresy",
+        "judge-dredd",
+        "killzone",
+        "kings-of-war-vanguard",
+        "kingsofwar",
+        "last-days-zombie-apocalypse",
+        "marvel-crisis-protocol",
+        "middle-earth",
+        "monsterpocalypse",
+        "mordheim",
+        "necromunda-gang-war",
+        "punkapocalyptic",
+        "ragnarok",
+        "realitys-edge",
+        "rumbleslam",
+        "sharp-practice",
+        "spqr",
+        "star-wars-armada",
+        "star-wars-legion",
+        "swxwing",
+        "The-9th-Age",
+        "the-walking-dead",
+        "the-walking-dead-call-to-arms",
+        "this-is-not-a-test",
+        "warhammer-age-of-sigmar",
+        "warhammer-age-of-sigmar-warcry",
+        "warhammer-armies-project",
+        "warlords-of-erehwon",
+        "wh40k",
+        "wh40k-apocalypse",
+        "wh40k-epic-armageddon",
+        "wh40k-killteam",
+        "whfb",
+        "Wild-West-Exodus",
+        "zone-raiders",
+    };
+}
