@@ -1,6 +1,6 @@
 {
-  "name": "BSData.Status",
-  "short_name": "BSData.Status",
+  "name": "BSData Status",
+  "short_name": "BSData Status",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
