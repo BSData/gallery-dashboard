@@ -13,8 +13,15 @@ jobs:
       DOTNET_NOLOGO: 1
     steps:
     - uses: actions/checkout@v2
+
+    - name: Read .NET Core SDK version
+      id: globaljson
+      shell: pwsh
+      run: Write-Host "::set-output name=version::$((Get-Content global.json -Raw | ConvertFrom-Json).sdk.version)"
+
     - uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '3.1.200'
+        dotnet-version: ${{ steps.globaljson.outputs.version }}
+
     - run: dotnet restore
     - run: dotnet build --no-restore
