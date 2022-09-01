@@ -1,6 +1,17 @@
+name: Deploy to GH pages
+
 on:
   push:
-    branches: [ master ]
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
   deploy-gh-pages:
@@ -8,17 +19,8 @@ jobs:
     env:
       DOTNET_NOLOGO: 1
     steps:
-      - uses: actions/checkout@v2
-        
-      - name: Read .NET Core SDK version
-        id: globaljson
-        shell: pwsh
-        run: Write-Host "::set-output name=version::$((Get-Content global.json -Raw | ConvertFrom-Json).sdk.version)"
-
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: ${{ steps.globaljson.outputs.version }}
-
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v2
       - run: dotnet publish -c Release -o bin/publish
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
