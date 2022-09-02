@@ -34,7 +34,7 @@
                 "/consoleloggerparameters:NoSummary"
             ],
             "options": {
-                "cwd": "$${workspaceFolder}/src/BSData.StatusDashboard"
+                "cwd": "$${workspaceFolder}/src/BSData.GalleryDashboard"
             },
             "problemMatcher": "$msCompile"
         }
