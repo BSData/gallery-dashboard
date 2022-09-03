@@ -32,7 +32,7 @@
         "run"
       ],
       "options": {
-        "cwd": "$${workspaceFolder}/src/BSData.GalleryDashboard"
+        "cwd": "${workspaceFolder}/src/BSData.GalleryDashboard"
       },
       "problemMatcher": "$msCompile"
     }

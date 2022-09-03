@@ -1,0 +1,46 @@
+@inject GalleryHttpClient httpClient
+@inject IOptions<GalleryBrowserOptions> options
+@inject GalleryBrowserState state
+
+<FluentSelect @bind-Value="selectedGalleryName">
+    @foreach (var galleryRef in state.Cache.GalleryReferences)
+    {
+        <FluentOption Value="galleryRef.Name">@galleryRef.Name</FluentOption>
+    }
+</FluentSelect>
+
+<GalleryRepositoryGrid @bind-CatpkgGallery=SelectedGalleryCache></GalleryRepositoryGrid>
+
+@code {
+    private string selectedGalleryName = "";
+
+    private CatpkgGalleryCache? SelectedGalleryCache
+    {
+        get => state.Cache[selectedGalleryName];
+        set { if (value is not null) { state.Cache.Upsert(value); } }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        // add if not already existing
+        foreach (var galleryRefDto in options.Value.DefaultGalleries)
+        {
+            var galleryRef = galleryRefDto.ToRecord();
+            if (state.Cache[galleryRef] is null)
+            {
+                state.Cache.Upsert(new(galleryRef));
+            }
+        }
+        selectedGalleryName = options.Value.DefaultGalleries.FirstOrDefault()?.Name ?? "";
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        foreach (var galleryRef in options.Value.DefaultGalleries)
+        {
+            var galleryInfo = await state.Cache.GetCatpkgGalleryInfoAsync(httpClient, galleryRef.ToRecord());
+        }
+    }
+}
