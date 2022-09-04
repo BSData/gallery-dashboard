@@ -1,7 +1,7 @@
 @inject GalleryHttpClient client
 @inject GalleryBrowserState state
 
-@if (CatpkgGallery is { InfoCache: { Repositories.Count: > 0 } galleryInfo } galleryCache)
+@if (CatpkgGallery is { InfoCache: { } galleryInfo })
 {
     <FluentCard class="p-2">
         <h4>@galleryInfo.Name</h4>
@@ -29,9 +29,13 @@
                 Atom feed: <a href="@galleryInfo.FeedUrl">@galleryInfo.FeedUrl</a>
             </li>
         </ul>
+
+        <FluentCheckbox @bind-Value=ShowArchived>
+            Show Archived Repositories
+        </FluentCheckbox>
     </FluentCard>
 
-    var repoList = galleryInfo.Repositories.ToList();
+    var repoList = repositories;
 
     <FluentDataGrid RowsData=repoList TItem=CatpkgRepositoryInfo GenerateHeader=GenerateHeaderOption.Default
     ColumnDefinitions=ColumnDefinitions GridTemplateColumns="1fr 2fr">
@@ -40,20 +44,29 @@
                 <FluentDataGridCell GridColumn=1>
                     <p>
                         <b>@context.Description</b>
-                    </p>
-                    <p>
-                        <code>@context.Name</code>
-                    </p>
-                </FluentDataGridCell>
-                <FluentDataGridCell GridColumn=2>
-                    <p>
-                        <b>@context.LastUpdateDescription</b>
-                    </p>
-                    <p>
-                        <code>@context.Version</code> @@
-                        @if (context.LastUpdated is { } lastUpdated)
+                        @if (context.Archived is true)
                             {
-                                <time datetime="@lastUpdated">@DateTimeOffset.Parse(lastUpdated).ToLocalTime().ToString("F")</time>
+                                <span class="ml-1">
+                                    <FluentBadge Appearance="Appearance.Neutral">Archived</FluentBadge>
+                                </span>
+                            }
+                        </p>
+                        <p>
+                            <a href="@context.GithubUrl">
+                                <code>@context.Name</code>
+                            </a>
+                        </p>
+                    </FluentDataGridCell>
+                    <FluentDataGridCell GridColumn=2>
+                        <p>
+                            <b>@context.LastUpdateDescription</b>
+                        </p>
+                        <p>
+                            <code>@context.Version</code> @@
+                            @if (context.LastUpdated is { } lastUpdated)
+                            {
+                                var offset = DateTimeOffset.Parse(lastUpdated);
+                                <time id="updateTime" datetime="@lastUpdated">@offset.ToLocalTime().ToString("u")</time>
                             }
                         </p>
                     </FluentDataGridCell>
@@ -78,6 +91,17 @@ else
     [Parameter]
     public EventCallback<CatpkgGalleryCache> CatpkgGalleryChanged { get; set; }
 
+    bool showArchived;
+    bool ShowArchived
+    {
+        get => showArchived;
+        set
+        {
+            showArchived = value;
+            UpdateRepositories();
+        }
+    }
+    List<CatpkgRepositoryInfo>? repositories;
     List<ColumnDefinition<CatpkgRepositoryInfo>> ColumnDefinitions { get; } = new()
     {
 #nullable disable
@@ -85,6 +109,14 @@ else
         new("Latest Release", x => x.Version),
 #nullable restore
     };
+
+    void UpdateRepositories()
+    {
+        repositories = CatpkgGallery?.InfoCache?.Repositories
+        ?.Where(x => x.Archived is true ? ShowArchived : true)
+        .ToList()
+        ?? new();
+    }
 
     protected async override Task OnParametersSetAsync()
     {
@@ -94,5 +126,6 @@ else
             var result = await state.Cache.GetHydratedCatpkgGalleryCacheAsync(client, galleryRef);
             await CatpkgGalleryChanged.InvokeAsync(result);
         }
+        UpdateRepositories();
     }
 }
