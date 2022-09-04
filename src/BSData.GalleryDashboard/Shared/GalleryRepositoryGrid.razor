@@ -114,6 +114,7 @@ else
     {
         repositories = CatpkgGallery?.InfoCache?.Repositories
         ?.Where(x => x.Archived is true ? ShowArchived : true)
+        .OrderBy(x => x.Description)
         .ToList()
         ?? new();
     }
