@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 
 #pragma warning disable CA1716 // Rename namespace BSData.GalleryDashboard.Shared so that it no longer conflicts with the reserved language keyword 'Shared'.
 namespace BSData.GalleryDashboard.Shared;
@@ -133,8 +134,10 @@ public record CatpkgGalleryInfo
     public string? FeedUrl { get; init; }
     public string? GithubUrl { get; init; }
     public string? WebsiteUrl { get; init; }
-    public ImmutableList<CatpkgRepositoryInfo>? Repositories { get; init; }
+    public ImmutableList<CatpkgRepositoryInfo> Repositories { get; init; } =
+        ImmutableList<CatpkgRepositoryInfo>.Empty;
 }
+
 public record CatpkgRepositoryInfo
 {
     public string? Name { get; init; }
@@ -152,8 +155,15 @@ public record CatpkgRepositoryInfo
     public string? BugTrackerUrl { get; init; }
     public string? ReportBugUrl { get; init; }
     public bool? Archived { get; init; }
-    public ImmutableList<CatpkgRepositoryInfo>? RepositoryFiles { get; init; }
+    public ImmutableList<CatpkgRepositoryInfo> RepositoryFiles { get; init; } =
+        ImmutableList<CatpkgRepositoryInfo>.Empty;
 }
+
+[JsonSerializable(typeof(ImmutableList<string>))]
+public partial class CatpkgSerializerContext : JsonSerializerContext
+{
+}
+
 public record CatpkgFileInfo
 {
     public string? Id { get; init; }
