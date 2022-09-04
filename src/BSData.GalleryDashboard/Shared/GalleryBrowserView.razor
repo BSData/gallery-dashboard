@@ -2,14 +2,15 @@
 @inject IOptions<GalleryBrowserOptions> options
 @inject GalleryBrowserState state
 
-<FluentSelect @bind-Value="selectedGalleryName">
-    @foreach (var galleryRef in state.Cache.GalleryReferences)
-    {
-        <FluentOption Value="galleryRef.Name">@galleryRef.Name</FluentOption>
-    }
-</FluentSelect>
-
-<GalleryRepositoryGrid @bind-CatpkgGallery=SelectedGalleryCache></GalleryRepositoryGrid>
+<div class="prose max-w-none flex-col space-y-2">
+    <FluentSelect @bind-Value="selectedGalleryName">
+        @foreach (var galleryRef in state.Cache.GalleryReferences)
+        {
+            <FluentOption Value="galleryRef.Name">@galleryRef.Name</FluentOption>
+        }
+    </FluentSelect>
+    <GalleryRepositoryGrid @bind-CatpkgGallery=SelectedGalleryCache></GalleryRepositoryGrid>
+</div>
 
 @code {
     private string selectedGalleryName = "";

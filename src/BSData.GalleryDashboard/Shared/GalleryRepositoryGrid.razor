@@ -3,19 +3,38 @@
 
 @if (CatpkgGallery is { InfoCache: { Repositories.Count: > 0 } galleryInfo } galleryCache)
 {
-    <h3>@galleryInfo.Description</h3>
-    <ul>
-        <li>
-            <a href="@galleryInfo.GithubUrl">GitHub: @galleryInfo.GithubUrl</a>
-        </li>
-        <li>
-            <a href="@galleryInfo.RepositorySourceUrl">Catpkg-Gallery JSON: @galleryInfo.RepositorySourceUrl</a>
-        </li>
-    </ul>
+    <FluentCard class="p-2">
+        <h4>@galleryInfo.Name</h4>
+        <em>@galleryInfo.Description</em>
+        <ul>
+            <li>
+                Website URL: <a href="@galleryInfo.WebsiteUrl">@galleryInfo.WebsiteUrl</a>
+            </li>
+            <li>
+                GitHub: <a href="@galleryInfo.GithubUrl">@galleryInfo.GithubUrl</a>
+            </li>
+            <li>
+                Catpkg-Gallery JSON: <a href="@galleryInfo.RepositorySourceUrl">@galleryInfo.RepositorySourceUrl</a>
+            </li>
+            <li>
+                Discord: <a href="@galleryInfo.DiscordUrl">@galleryInfo.DiscordUrl</a>
+            </li>
+            <li>
+                Facebook: <a href="@galleryInfo.FacebookUrl">@galleryInfo.FacebookUrl</a>
+            </li>
+            <li>
+                Twitter: <a href="@galleryInfo.TwitterUrl">@galleryInfo.TwitterUrl</a>
+            </li>
+            <li>
+                Atom feed: <a href="@galleryInfo.FeedUrl">@galleryInfo.FeedUrl</a>
+            </li>
+        </ul>
+    </FluentCard>
 
     var repoList = galleryInfo.Repositories.ToList();
 
-    <FluentDataGrid RowsData=repoList TItem=CatpkgRepositoryInfo GenerateHeader=GenerateHeaderOption.Default ColumnDefinitions=ColumnDefinitions GridTemplateColumns="1fr 1fr">
+    <FluentDataGrid RowsData=repoList TItem=CatpkgRepositoryInfo GenerateHeader=GenerateHeaderOption.Default
+    ColumnDefinitions=ColumnDefinitions GridTemplateColumns="1fr 2fr">
         <RowItemTemplate>
             <FluentDataGridRow>
                 <FluentDataGridCell GridColumn=1>
@@ -33,14 +52,14 @@
                     <p>
                         <code>@context.Version</code> @@
                         @if (context.LastUpdated is { } lastUpdated)
-                        {
-                            <time datetime="@lastUpdated">@DateTimeOffset.Parse(lastUpdated)</time>
-                        }
-                    </p>
-                </FluentDataGridCell>
-            </FluentDataGridRow>
-        </RowItemTemplate>
-    </FluentDataGrid>
+                            {
+                                <time datetime="@lastUpdated">@DateTimeOffset.Parse(lastUpdated).ToLocalTime().ToString("F")</time>
+                            }
+                        </p>
+                    </FluentDataGridCell>
+                </FluentDataGridRow>
+            </RowItemTemplate>
+        </FluentDataGrid>
 }
 else if (CatpkgGallery is null)
 {
