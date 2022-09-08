@@ -1,7 +1,46 @@
 ﻿@page "/"
 
+@inject NavigationManager nav
+
 <PageTitle>BSData Gallery</PageTitle>
 
 <div>
-    <GalleryBrowserView></GalleryBrowserView>
+    <GalleryBrowserView @bind-Gallery=GalleryValue @bind-Repository=RepositoryValue />
 </div>
+
+@code {
+    [Parameter, SupplyParameterFromQuery(Name = "gallery")]
+    public string? Gallery { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "repo")]
+    public string? Repository { get; set; }
+
+    public string? GalleryValue
+    {
+        get => Gallery;
+        set
+        {
+            Gallery = value;
+            UpdateQuery();
+        }
+    }
+
+    public string? RepositoryValue
+    {
+        get => Repository;
+        set
+        {
+            Repository = value;
+            UpdateQuery();
+        }
+    }
+
+    void UpdateQuery()
+    {
+        nav.NavigateTo(nav.GetUriWithQueryParameters(new Dictionary<string, object?>
+        {
+            ["gallery"] = Gallery,
+            ["repo"] = Repository,
+        }));
+    }
+}

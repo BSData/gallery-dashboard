@@ -1,3 +1,5 @@
+@using Humanizer
+
 @inject GalleryHttpClient client
 @inject GalleryBrowserState state
 
@@ -40,9 +42,10 @@
     <FluentDataGrid RowsData=repoList TItem=CatpkgRepositoryInfo GenerateHeader=GenerateHeaderOption.Default
     ColumnDefinitions=ColumnDefinitions GridTemplateColumns="1fr 2fr">
         <RowItemTemplate>
-            <FluentDataGridRow>
+            <FluentDataGridRow @onclick="() => OpenRepository(context)">
                 <FluentDataGridCell GridColumn=1>
                     <p>
+                        @* // TODO allow repository selection *@
                         <b>@context.Description</b>
                         @if (context.Archived is true)
                             {
@@ -50,23 +53,25 @@
                                     <FluentBadge Appearance="Appearance.Neutral">Archived</FluentBadge>
                                 </span>
                             }
-                        </p>
-                        <p>
-                            <a href="@context.GithubUrl">
-                                <code>@context.Name</code>
-                            </a>
+                            <br>
+
+                            <FluentAnchor Href="@context.GithubUrl" Appearance=Appearance.Hypertext class="font-mono">
+                                @context.Name
+                            </FluentAnchor>
                         </p>
                     </FluentDataGridCell>
                     <FluentDataGridCell GridColumn=2>
                         <p>
+                            <span class="font-mono">@context.Version</span>
                             <b>@context.LastUpdateDescription</b>
-                        </p>
-                        <p>
-                            <code>@context.Version</code> @@
                             @if (context.LastUpdated is { } lastUpdated)
                             {
                                 var offset = DateTimeOffset.Parse(lastUpdated);
-                                <time id="updateTime" datetime="@lastUpdated">@offset.ToLocalTime().ToString("u")</time>
+                                <br>
+                                <em>
+                                    <time id="updateTime" datetime="@lastUpdated">@offset.Humanize()
+                                        (@offset.ToLocalTime().ToString("u"))</time>
+                                </em>
                             }
                         </p>
                     </FluentDataGridCell>
@@ -117,6 +122,11 @@ else
         .OrderBy(x => x.Description)
         .ToList()
         ?? new();
+    }
+
+    void OpenRepository(CatpkgRepositoryInfo repoInfo)
+    {
+        Console.WriteLine($"clicked: {repoInfo.Name}");
     }
 
     protected async override Task OnParametersSetAsync()

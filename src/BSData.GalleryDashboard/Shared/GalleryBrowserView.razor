@@ -3,17 +3,35 @@
 @inject GalleryBrowserState state
 
 <div class="prose max-w-none flex-col space-y-2">
-    <FluentSelect @bind-Value="selectedGalleryName">
+    <FluentSelect TValue=string Value="selectedGalleryName" ValueChanged="(x => SelectedGalleryChanged(x))">
         @foreach (var galleryRef in state.Cache.GalleryReferences)
         {
             <FluentOption Value="galleryRef.Name">@galleryRef.Name</FluentOption>
         }
     </FluentSelect>
+    @if (gallerySelectionError is {} error)
+    {
+        <p>@error</p>
+    }
     <GalleryRepositoryGrid @bind-CatpkgGallery=SelectedGalleryCache></GalleryRepositoryGrid>
 </div>
 
 @code {
+    private string defaultGalleryName = "not set";
     private string selectedGalleryName = "";
+    private string? gallerySelectionError;
+
+    [Parameter]
+    public string? Gallery { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> GalleryChanged { get; set; }
+
+    [Parameter]
+    public string? Repository { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> RepositoryChanged { get; set; }
 
     private CatpkgGalleryCache? SelectedGalleryCache
     {
@@ -21,10 +39,43 @@
         set { if (value is not null) { state.Cache.Upsert(value); } }
     }
 
+    async Task SelectedGalleryChanged(string newValue)
+    {
+        if (selectedGalleryName == newValue)
+        {
+            return;
+        }
+        if (state.Cache[newValue] is {} galleryCache)
+        {
+            selectedGalleryName = newValue;
+            if (newValue == defaultGalleryName)
+            {
+                await GalleryChanged.InvokeAsync(null);
+            }
+            else if (options.Value.DefaultGalleries.Any(x => x.Name == newValue))
+            {
+                // known value
+                await GalleryChanged.InvokeAsync(newValue);
+            }
+            else
+            {
+                // custom value
+                await GalleryChanged.InvokeAsync($"Custom|{galleryCache.Reference.Name}|{galleryCache.Reference.CatpkgUrl}");
+            }
+        }
+        else
+        {
+            // null cache
+            selectedGalleryName = "";
+            gallerySelectionError = $"Failed to select gallery with name '{newValue}' - none found. Try creating new gallery reference with that name.";
+        }
+    }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
         // add if not already existing
+        defaultGalleryName = options.Value.DefaultGalleries[0].Name!;
         foreach (var galleryRefDto in options.Value.DefaultGalleries)
         {
             var galleryRef = galleryRefDto.ToRecord();
@@ -33,15 +84,56 @@
                 state.Cache.Upsert(new(galleryRef));
             }
         }
-        selectedGalleryName = options.Value.DefaultGalleries.FirstOrDefault()?.Name ?? "";
     }
 
-    protected async override Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnParametersSet()
     {
-        await base.OnAfterRenderAsync(firstRender);
-        foreach (var galleryRef in options.Value.DefaultGalleries)
+        base.OnParametersSet();
+        gallerySelectionError = null;
+        selectedGalleryName = defaultGalleryName;
+        if (Gallery is null)
         {
-            var galleryInfo = await state.Cache.GetCatpkgGalleryInfoAsync(httpClient, galleryRef.ToRecord());
+            return;
         }
+        if (Gallery.StartsWith("Custom|"))
+        {
+            try
+            {
+                var parts = Gallery.Split("|", 3);
+                var galleryRef = new GalleryReference(parts[1], new Uri(parts[2]));
+                SelectGalleryRef(galleryRef);
+            }
+            catch (Exception e)
+            {
+                gallerySelectionError = $"Failed to parse Gallery parameter: '{Gallery}''. ({e})";
+            }
+            return;
+        }
+        // we look up the name in cache
+        if (state.Cache[Gallery] is {} galleryCache)
+        {
+            SelectGalleryRef(galleryCache.Reference);
+        }
+        else
+        {
+            gallerySelectionError = $"Failed to select Gallery '{Gallery}'.";
+        }
+    }
+
+    void SelectGalleryRef(GalleryReference galleryRef)
+    {
+        if (state.Cache[galleryRef.Name] is { } existingRef)
+        {
+            if (existingRef.Reference.CatpkgUrl != galleryRef.CatpkgUrl)
+            {
+                gallerySelectionError = $"A gallery with name '{galleryRef.Name}' already exists. Please use a different name or refresh the page.";
+                return;
+            }
+        }
+        else
+        {
+            state.Cache.Upsert(new(galleryRef));
+        }
+        selectedGalleryName = galleryRef.Name;
     }
 }
