@@ -155,8 +155,8 @@ public record CatpkgRepositoryInfo
     public string? BugTrackerUrl { get; init; }
     public string? ReportBugUrl { get; init; }
     public bool? Archived { get; init; }
-    public ImmutableList<CatpkgRepositoryInfo> RepositoryFiles { get; init; } =
-        ImmutableList<CatpkgRepositoryInfo>.Empty;
+    public ImmutableList<CatpkgFileInfo> RepositoryFiles { get; init; } =
+        ImmutableList<CatpkgFileInfo>.Empty;
 }
 
 [JsonSerializable(typeof(ImmutableList<string>))]

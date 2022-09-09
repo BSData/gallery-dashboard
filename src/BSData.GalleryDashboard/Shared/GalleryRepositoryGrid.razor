@@ -1,13 +1,14 @@
-@using Humanizer
-
 @inject GalleryHttpClient client
 @inject GalleryBrowserState state
 
 @if (CatpkgGallery is { InfoCache: { } galleryInfo })
 {
     <FluentCard class="p-2">
-        <h4>@galleryInfo.Name</h4>
-        <em>@galleryInfo.Description</em>
+        <div>
+            <b>@galleryInfo.Name</b>
+            <br/>
+            <em>@galleryInfo.Description</em>
+        </div>
         <ul>
             <li>
                 Website URL: <a href="@galleryInfo.WebsiteUrl">@galleryInfo.WebsiteUrl</a>
@@ -39,45 +40,45 @@
 
     var repoList = repositories;
 
-    <FluentDataGrid RowsData=repoList TItem=CatpkgRepositoryInfo GenerateHeader=GenerateHeaderOption.Default
-    ColumnDefinitions=ColumnDefinitions GridTemplateColumns="1fr 2fr">
-        <RowItemTemplate>
-            <FluentDataGridRow @onclick="() => OpenRepository(context)">
-                <FluentDataGridCell GridColumn=1>
-                    <p>
-                        @* // TODO allow repository selection *@
-                        <b>@context.Description</b>
-                        @if (context.Archived is true)
-                            {
-                                <span class="ml-1">
-                                    <FluentBadge Appearance="Appearance.Neutral">Archived</FluentBadge>
-                                </span>
-                            }
-                            <br>
+    <div class="flex flex-col space-y-2">
+        @foreach (var catpkg in repositories)
+        {
+            <FluentCard class="p-2">
+                <div>
+                    <b>@catpkg.Description</b>
+                    @if (catpkg.Archived is true)
+                    {
+                        <span class="ml-1">
+                            <FluentBadge Appearance="Appearance.Neutral">Archived</FluentBadge>
+                        </span>
+                    }
+                    <br>
 
-                            <FluentAnchor Href="@context.GithubUrl" Appearance=Appearance.Hypertext class="font-mono">
-                                @context.Name
-                            </FluentAnchor>
-                        </p>
-                    </FluentDataGridCell>
-                    <FluentDataGridCell GridColumn=2>
-                        <p>
-                            <span class="font-mono">@context.Version</span>
-                            <b>@context.LastUpdateDescription</b>
-                            @if (context.LastUpdated is { } lastUpdated)
-                            {
-                                var offset = DateTimeOffset.Parse(lastUpdated);
-                                <br>
-                                <em>
-                                    <time id="updateTime" datetime="@lastUpdated">@offset.Humanize()
-                                        (@offset.ToLocalTime().ToString("u"))</time>
-                                </em>
-                            }
-                        </p>
-                    </FluentDataGridCell>
-                </FluentDataGridRow>
-            </RowItemTemplate>
-        </FluentDataGrid>
+                    <FluentAnchor Href="@catpkg.GithubUrl" Appearance=Appearance.Hypertext class="font-mono">
+                        @catpkg.Name
+                    </FluentAnchor>
+                </div>
+                <div>
+                    <span class="font-mono">@catpkg.Version</span>
+                    <b>@catpkg.LastUpdateDescription</b>
+                    @if (catpkg.LastUpdated is { } lastUpdated)
+                    {
+                        var offset = DateTimeOffset.Parse(lastUpdated);
+                        <br>
+                        <em>
+                            <small>
+                                <time datetime="@lastUpdated">
+                                    @offset.Humanize()
+                                    (@offset.ToLocalTime().ToString("u"))
+                                </time>
+                            </small>
+                        </em>
+                    }
+                </div>
+                <FluentButton @onclick="() => SelectCatpkg(catpkg)">Details</FluentButton>
+            </FluentCard>
+        }
+    </div>
 }
 else if (CatpkgGallery is null)
 {
@@ -96,6 +97,9 @@ else
     [Parameter]
     public EventCallback<CatpkgGalleryCache> CatpkgGalleryChanged { get; set; }
 
+    [Parameter]
+    public EventCallback<CatpkgRepositoryInfo> RepositorySelected { get; set; }
+
     bool showArchived;
     bool ShowArchived
     {
@@ -106,7 +110,7 @@ else
             UpdateRepositories();
         }
     }
-    List<CatpkgRepositoryInfo>? repositories;
+    List<CatpkgRepositoryInfo> repositories = new();
     List<ColumnDefinition<CatpkgRepositoryInfo>> ColumnDefinitions { get; } = new()
     {
 #nullable disable
@@ -124,9 +128,9 @@ else
         ?? new();
     }
 
-    void OpenRepository(CatpkgRepositoryInfo repoInfo)
+    async Task SelectCatpkg(CatpkgRepositoryInfo repoInfo)
     {
-        Console.WriteLine($"clicked: {repoInfo.Name}");
+        await RepositorySelected.InvokeAsync(repoInfo);
     }
 
     protected async override Task OnParametersSetAsync()

@@ -2,18 +2,26 @@
 @inject IOptions<GalleryBrowserOptions> options
 @inject GalleryBrowserState state
 
-<div class="prose max-w-none flex-col space-y-2">
-    <FluentSelect TValue=string Value="selectedGalleryName" ValueChanged="(x => SelectedGalleryChanged(x))">
-        @foreach (var galleryRef in state.Cache.GalleryReferences)
-        {
-            <FluentOption Value="galleryRef.Name">@galleryRef.Name</FluentOption>
-        }
-    </FluentSelect>
+<div class="prose max-w-none flex flex-col space-y-2">
     @if (gallerySelectionError is {} error)
     {
         <p>@error</p>
     }
-    <GalleryRepositoryGrid @bind-CatpkgGallery=SelectedGalleryCache></GalleryRepositoryGrid>
+    @if (Repository is {} repoName && SelectedGalleryCache?.InfoCache?.Repositories.Find(x => x.Name == repoName) is {} catpkg)
+    {
+        var catpkgRef = new RepositoryReference(repoName, SelectedGalleryCache.Reference);
+        <CatpkgRepositoryView CatpkgReference=catpkgRef />
+    }
+    else
+    {
+        <FluentSelect class="self-start" TValue=string Value="selectedGalleryName" ValueChanged="(x => SelectedGalleryChanged(x))">
+            @foreach (var galleryRef in state.Cache.GalleryReferences)
+            {
+                <FluentOption Value="galleryRef.Name">@galleryRef.Name</FluentOption>
+            }
+        </FluentSelect>
+        <GalleryRepositoryGrid @bind-CatpkgGallery=SelectedGalleryCache RepositorySelected="x => RepositoryChanged.InvokeAsync(x.Name)" />
+    }
 </div>
 
 @code {

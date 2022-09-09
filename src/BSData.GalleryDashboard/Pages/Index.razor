@@ -5,6 +5,23 @@
 <PageTitle>BSData Gallery</PageTitle>
 
 <div>
+    <FluentBreadcrumb>
+        <FluentBreadcrumbItem Href="@UriWithQuery(null, null)">Browse</FluentBreadcrumbItem>
+        @if (Repository is { } repoName)
+        {
+            <FluentBreadcrumbItem Href="@UriWithQuery(Gallery, null)">
+                @Gallery
+            </FluentBreadcrumbItem>
+            <FluentBreadcrumbItem>@repoName</FluentBreadcrumbItem>
+        }
+        else
+        {
+            <FluentBreadcrumbItem>@Gallery</FluentBreadcrumbItem>
+        }
+    </FluentBreadcrumb>
+</div>
+
+<div>
     <GalleryBrowserView @bind-Gallery=GalleryValue @bind-Repository=RepositoryValue />
 </div>
 
@@ -37,10 +54,15 @@
 
     void UpdateQuery()
     {
-        nav.NavigateTo(nav.GetUriWithQueryParameters(new Dictionary<string, object?>
+        nav.NavigateTo(UriWithQuery(Gallery, Repository));
+    }
+
+    string UriWithQuery(string? gallery, string? repository)
+    {
+        return nav.GetUriWithQueryParameters(new Dictionary<string, object?>
         {
-            ["gallery"] = Gallery,
-            ["repo"] = Repository,
-        }));
+            ["gallery"] = gallery,
+            ["repo"] = repository,
+        });
     }
 }
