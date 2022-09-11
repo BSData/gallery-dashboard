@@ -20,7 +20,7 @@
                 <FluentOption Value="galleryRef.Name">@galleryRef.Name</FluentOption>
             }
         </FluentSelect>
-        <GalleryRepositoryGrid @bind-CatpkgGallery=SelectedGalleryCache RepositorySelected="x => RepositoryChanged.InvokeAsync(x.Name)" />
+        <CatpkgGalleryView @bind-CatpkgGallery=SelectedGalleryCache RepositorySelected="x => RepositoryChanged.InvokeAsync(x.Name)" />
     }
 </div>
 
