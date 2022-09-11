@@ -6,41 +6,45 @@
     <FluentCard class="p-2">
         <div>
             <b>@galleryInfo.Name</b>
-            <br/>
+            <br />
             <em>@galleryInfo.Description</em>
         </div>
-        <ul>
-            <li>
-                Website URL: <a href="@galleryInfo.WebsiteUrl">@galleryInfo.WebsiteUrl</a>
-            </li>
-            <li>
-                GitHub: <a href="@galleryInfo.GithubUrl">@galleryInfo.GithubUrl</a>
-            </li>
-            <li>
-                Catpkg-Gallery JSON: <a href="@galleryInfo.RepositorySourceUrl">@galleryInfo.RepositorySourceUrl</a>
-            </li>
-            <li>
-                Discord: <a href="@galleryInfo.DiscordUrl">@galleryInfo.DiscordUrl</a>
-            </li>
-            <li>
-                Facebook: <a href="@galleryInfo.FacebookUrl">@galleryInfo.FacebookUrl</a>
-            </li>
-            <li>
-                Twitter: <a href="@galleryInfo.TwitterUrl">@galleryInfo.TwitterUrl</a>
-            </li>
-            <li>
-                Atom feed: <a href="@galleryInfo.FeedUrl">@galleryInfo.FeedUrl</a>
-            </li>
-        </ul>
-
+        <FluentSearch Placeholder="Find repository" @bind-Value=SearchText @oninput="OnSearchInput"></FluentSearch>
         <FluentCheckbox @bind-Value=ShowArchived>
             Show Archived Repositories
         </FluentCheckbox>
+        <details>
+            <summary>Links:</summary>
+            <ul>
+                <li>
+                    Website URL: <a href="@galleryInfo.WebsiteUrl">@galleryInfo.WebsiteUrl</a>
+                </li>
+                <li>
+                    GitHub: <a href="@galleryInfo.GithubUrl">@galleryInfo.GithubUrl</a>
+                </li>
+                <li>
+                    Catpkg-Gallery JSON: <a href="@galleryInfo.RepositorySourceUrl">@galleryInfo.RepositorySourceUrl</a>
+                </li>
+                <li>
+                    Discord: <a href="@galleryInfo.DiscordUrl">@galleryInfo.DiscordUrl</a>
+                </li>
+                <li>
+                    Facebook: <a href="@galleryInfo.FacebookUrl">@galleryInfo.FacebookUrl</a>
+                </li>
+                <li>
+                    Twitter: <a href="@galleryInfo.TwitterUrl">@galleryInfo.TwitterUrl</a>
+                </li>
+                <li>
+                    Atom feed: <a href="@galleryInfo.FeedUrl">@galleryInfo.FeedUrl</a>
+                </li>
+            </ul>
+        </details>
     </FluentCard>
 
     var repoList = repositories;
 
     <div class="flex flex-col space-y-2">
+        <b>Repositories (@repositories.Count):</b>
         @foreach (var catpkg in repositories)
         {
             <FluentCard class="p-2">
@@ -100,6 +104,18 @@ else
     [Parameter]
     public EventCallback<CatpkgRepositoryInfo> RepositorySelected { get; set; }
 
+    readonly Timer searchTimer;
+    string? searchText;
+    string? SearchText
+    {
+        get => searchText;
+        set
+        {
+            searchText = value;
+            UpdateRepositories();
+        }
+    }
+
     bool showArchived;
     bool ShowArchived
     {
@@ -123,14 +139,39 @@ else
     {
         repositories = CatpkgGallery?.InfoCache?.Repositories
         ?.Where(x => x.Archived is true ? ShowArchived : true)
+        .Where(Matches)
         .OrderBy(x => x.Description)
         .ToList()
         ?? new();
+        StateHasChanged();
+
+        bool Matches(CatpkgRepositoryInfo x)
+        {
+            var search = SearchText;
+            return string.IsNullOrWhiteSpace(search) ? true
+            : MatchSearch(search, x.Name) || MatchSearch(search, x.Description);
+        }
+
+        static bool MatchSearch(string search, string? value) =>
+        value?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false;
+    }
+
+    void OnSearchInput(ChangeEventArgs e)
+    {
+        var newValue = e.Value?.ToString();
+        searchText = newValue;
+        searchTimer.Change(TimeSpan.FromMilliseconds(300), Timeout.InfiniteTimeSpan);
     }
 
     async Task SelectCatpkg(CatpkgRepositoryInfo repoInfo)
     {
         await RepositorySelected.InvokeAsync(repoInfo);
+    }
+
+    public CatpkgGalleryView()
+    {
+        searchTimer = new Timer(state => ((CatpkgGalleryView?)state)!.UpdateRepositories(), this, Timeout.Infinite,
+        Timeout.Infinite);
     }
 
     protected async override Task OnParametersSetAsync()

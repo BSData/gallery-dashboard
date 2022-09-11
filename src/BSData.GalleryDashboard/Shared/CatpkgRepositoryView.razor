@@ -3,127 +3,13 @@
 
 @if (repositoryInfo is { } catpkg)
 {
-    <FluentCard class="p-2">
-
-        <div>
-            <b>@catpkg.Description</b>
-            @if (catpkg.Archived is true)
-            {
-                <span class="ml-1">
-                    <FluentBadge Appearance="Appearance.Neutral">Archived</FluentBadge>
-                </span>
-            }
-            <br>
-
-            <FluentAnchor Href="@catpkg.GithubUrl" Appearance=Appearance.Hypertext class="font-mono">
-                @catpkg.Name
-            </FluentAnchor>
-        </div>
-        <div>
-            <span class="font-mono">@catpkg.Version</span>
-            <b>@catpkg.LastUpdateDescription</b>
-            @if (catpkg.LastUpdated is { } lastUpdated)
-            {
-                var offset = DateTimeOffset.Parse(lastUpdated);
-                <br>
-                <em>
-                    <small>
-                        <time datetime="@lastUpdated">
-                            @offset.Humanize()
-                            (@offset.ToLocalTime().ToString("u"))
-                        </time>
-                    </small>
-                </em>
-            }
-        </div>
-        <ul>
-            <li>
-                GitHub: <a href="@catpkg.GithubUrl">@catpkg.GithubUrl</a>
-            </li>
-            <li>
-                Report a bug: <a href="@catpkg.ReportBugUrl">@catpkg.ReportBugUrl</a>
-            </li>
-            <li>
-                Bug tracker: <a href="@catpkg.BugTrackerUrl">@catpkg.BugTrackerUrl</a>
-            </li>
-            <li>
-                Atom feed: <a href="@catpkg.FeedUrl">@catpkg.FeedUrl</a>
-            </li>
-            <li>
-                BSI index URL: <a href="@catpkg.IndexUrl">@catpkg.IndexUrl</a>
-            </li>
-            <li>
-                Catpkg JSON: <a href="@catpkg.RepositoryUrl">@catpkg.RepositoryUrl</a>
-            </li>
-            <li>
-                Catpkg JSON gzip: <a href="@catpkg.RepositoryGzipUrl">@catpkg.RepositoryGzipUrl</a>
-            </li>
-            <li>
-                Catpkg BSR: <a href="@catpkg.RepositoryBsrUrl">@catpkg.RepositoryBsrUrl</a>
-            </li>
-        </ul>
-    </FluentCard>
+    <CatpkgSummaryCard Catpkg=catpkg />
 
     <h4>Files:</h4>
-
-    <div class="flex flex-col space-y-2">
+    <div class="flex flex-col space-y-2 py-2">
         @foreach (var file in catpkg.RepositoryFiles)
         {
-            <FluentCard class="p-2">
-                <div>
-                    <b>@file.Name</b>
-                    <em>(v@(file.Revision))</em>
-                </div>
-
-                <div>
-                    <small>
-                        @if (!string.IsNullOrWhiteSpace(file.AuthorName))
-                        {
-                            <em>by: @file.AuthorName</em>
-                        }
-                        else
-                        {
-                            <em>by: (no author name)</em>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(file.AuthorContact))
-                        {
-                            <span>&ThinSpace;(contact:</span>
-                            <b>@file.AuthorContact</b>
-                            @if (!string.IsNullOrWhiteSpace(file.AuthorUrl))
-                            {
-                                <span>&ThinSpace;@@</span>
-                                <FluentAnchor Appearance=Appearance.Hypertext Href=@file.AuthorUrl>@file.AuthorUrl</FluentAnchor>
-                            }
-                            <span>)</span>
-                        }
-                        else if (!string.IsNullOrWhiteSpace(file.AuthorUrl))
-                        {
-                            <FluentAnchor Appearance=Appearance.Hypertext Href=@file.AuthorUrl>@file.AuthorUrl</FluentAnchor>
-                        }
-                    </small>
-                </div>
-                <div>
-                    <small>
-                        <span class="font-mono">@file.Type</span> (ID: <span class="font-mono">@file.Id</span>)
-                    </small>
-                </div>
-                <ul>
-                    <small>
-                        <li>
-                            File URL: <a href="@file.FileUrl">@file.FileUrl</a>
-                        </li>
-                        <li>
-                            GitHub: <a href="@file.GithubUrl">@file.GithubUrl</a>
-                        </li>
-                        <li>
-                            Report a bug: <a href="@file.ReportBugUrl">@file.ReportBugUrl</a>
-                        </li>
-                        <li>
-                            Bug tracker: <a href="@file.BugTrackerUrl">@file.BugTrackerUrl</a>
-                        </li>
-                    </small>
-                </ul>
-            </FluentCard>
+            <CatpkgFileCard RepositoryFile=file />
         }
     </div>
 }
@@ -143,10 +29,17 @@ else
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        if (CatpkgReference is { } reference)
+        if (CatpkgReference is { } reference && state.Cache[reference.Gallery] is { } galleryCache)
         {
-            repositoryInfo = state.Cache[reference.Gallery]?.InfoCache?.Repositories.Find(x => x.Name == reference.Name);
-            repositoryInfo = await state.Cache.GetHydratedCatpkgAsync(httpClient, reference);
+            if (galleryCache.RepositoryInfoCache.TryGetValue(reference, out var repoCache))
+            {
+                repositoryInfo = repoCache;
+            }
+            else
+            {
+                repositoryInfo = state.Cache[reference.Gallery]?.InfoCache?.Repositories.Find(x => x.Name == reference.Name);
+                repositoryInfo = await state.Cache.GetHydratedCatpkgAsync(httpClient, reference);
+            }
         }
     }
 }

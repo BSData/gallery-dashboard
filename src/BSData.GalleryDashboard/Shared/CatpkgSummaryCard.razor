@@ -1,0 +1,70 @@
+<FluentCard class="p-2">
+    @if (Catpkg is { } catpkg)
+    {
+        <div>
+            <b>@catpkg.Description</b>
+            @if (catpkg.Archived is true)
+            {
+                <span class="ml-1">
+                    <FluentBadge Appearance="Appearance.Neutral">Archived</FluentBadge>
+                </span>
+            }
+            <br>
+
+            <FluentAnchor Href="@catpkg.GithubUrl" Appearance=Appearance.Hypertext class="font-mono">
+                @catpkg.Name
+            </FluentAnchor>
+        </div>
+        <div>
+            <span class="font-mono">@catpkg.Version</span>
+            <b>@catpkg.LastUpdateDescription</b>
+            @if (catpkg.LastUpdated is { } lastUpdated)
+            {
+                var offset = DateTimeOffset.Parse(lastUpdated);
+                <br>
+                <em>
+                    <small>
+                        <time datetime="@lastUpdated">
+                            @offset.Humanize()
+                            (@offset.ToLocalTime().ToString("u"))
+                        </time>
+                    </small>
+                </em>
+            }
+        </div>
+        <details>
+            <summary>Links:</summary>
+            <ul>
+                <li>
+                    GitHub: <a href="@catpkg.GithubUrl">@catpkg.GithubUrl</a>
+                </li>
+                <li>
+                    Report a bug: <a href="@catpkg.ReportBugUrl">@catpkg.ReportBugUrl</a>
+                </li>
+                <li>
+                    Bug tracker: <a href="@catpkg.BugTrackerUrl">@catpkg.BugTrackerUrl</a>
+                </li>
+                <li>
+                    Atom feed: <a href="@catpkg.FeedUrl">@catpkg.FeedUrl</a>
+                </li>
+                <li>
+                    BSI index URL: <a href="@catpkg.IndexUrl">@catpkg.IndexUrl</a>
+                </li>
+                <li>
+                    Catpkg JSON: <a href="@catpkg.RepositoryUrl">@catpkg.RepositoryUrl</a>
+                </li>
+                <li>
+                    Catpkg JSON gzip: <a href="@catpkg.RepositoryGzipUrl">@catpkg.RepositoryGzipUrl</a>
+                </li>
+                <li>
+                    Catpkg BSR: <a href="@catpkg.RepositoryBsrUrl">@catpkg.RepositoryBsrUrl</a>
+                </li>
+            </ul>
+        </details>
+    }
+</FluentCard>
+
+@code {
+    [Parameter]
+    public CatpkgRepositoryInfo? Catpkg { get; set; }
+}
