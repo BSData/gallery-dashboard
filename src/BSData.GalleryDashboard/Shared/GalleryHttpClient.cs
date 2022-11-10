@@ -106,13 +106,19 @@ public sealed class GalleryHttpClient : IDisposable
 
     public async Task<CatpkgGalleryInfo> GetGalleryFromUrl(string url)
     {
+        // disabling warning as it seems that currently it works as is, and we cant use source generation with init properties as of net7
+#pragma warning disable IL2026 // GetFromJsonAsync RequiresUnreferencedCodeAttribute JSON serialization and deserialization might require types that cannot be statically analyzed. Use the overload that takes a JsonTypeInfo or JsonSerializerContext, or make sure all of the required types are preserved.
         var result = await client.GetFromJsonAsync<CatpkgGalleryInfo>("?" + url);
+#pragma warning restore IL2026
         return result!;
     }
 
     public async Task<CatpkgRepositoryInfo> GetCatpkgFromUrl(string url)
     {
+        // disabling warning as it seems that currently it works as is, and we cant use source generation with init properties as of net7
+#pragma warning disable IL2026 // GetFromJsonAsync RequiresUnreferencedCodeAttribute JSON serialization and deserialization might require types that cannot be statically analyzed. Use the overload that takes a JsonTypeInfo or JsonSerializerContext, or make sure all of the required types are preserved.
         var result = await client.GetFromJsonAsync<CatpkgRepositoryInfo>("?" + url);
+#pragma warning restore IL2026
         return result!;
     }
 
