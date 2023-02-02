@@ -14,10 +14,10 @@
     }
     else
     {
-        <FluentSelect class="self-start" TValue=string Value="selectedGalleryName" ValueChanged="(x => SelectedGalleryChanged(x))">
+        <FluentSelect class="self-start" TOption=string Value="@selectedGalleryName" ValueChanged="(x => SelectedGalleryChanged(x))">
             @foreach (var galleryRef in state.Cache.GalleryReferences)
             {
-                <FluentOption Value="galleryRef.Name">@galleryRef.Name</FluentOption>
+                <FluentOption Value="@galleryRef.Name">@galleryRef.Name</FluentOption>
             }
         </FluentSelect>
         <CatpkgGalleryView @bind-CatpkgGallery=SelectedGalleryCache RepositorySelected="x => RepositoryChanged.InvokeAsync(x.Name)" />
