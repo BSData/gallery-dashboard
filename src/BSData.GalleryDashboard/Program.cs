@@ -1,3 +1,5 @@
+#pragma warning disable CA1852
+
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
