@@ -127,13 +127,6 @@ else
         }
     }
     List<CatpkgRepositoryInfo> repositories = new();
-    List<ColumnDefinition<CatpkgRepositoryInfo>> ColumnDefinitions { get; } = new()
-    {
-#nullable disable
-        new("Name", x => x.Description),
-        new("Latest Release", x => x.Version),
-#nullable restore
-    };
 
     void UpdateRepositories()
     {
