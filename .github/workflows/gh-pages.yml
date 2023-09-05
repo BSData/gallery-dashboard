@@ -20,7 +20,7 @@ jobs:
       DOTNET_NOLOGO: 1
       PagesCname: gallery.bsdata.net
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v3
       - name: dotnet publish
         run: dotnet publish ./src/BSData.GalleryDashboard -c Release -o bin/publish -p:GHPages=true -p:GHPagesBase=https://${{ env.PagesCname }}
