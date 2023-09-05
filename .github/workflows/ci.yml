@@ -13,7 +13,7 @@ jobs:
       DOTNET_NOLOGO: 1
       Configuration: Release
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v3
       - run: dotnet restore
       - run: dotnet build --no-restore
