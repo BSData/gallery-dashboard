@@ -1,24 +1,18 @@
 <Project>
   <PropertyGroup>
-    <LangVersion>11</LangVersion>
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Authors>Amadeusz Sadowski and contributors</Authors>
     <Company>BSData</Company>
     <Copyright>Copyright © $(Authors)</Copyright>
     <IsPackable>false</IsPackable>
-    <CommonTargetFramework>net7.0</CommonTargetFramework>
-    <VersionPrefix>1.1.0</VersionPrefix>
+    <CommonTargetFramework>net8.0</CommonTargetFramework>
+    <VersionPrefix>1.2.0</VersionPrefix>
     <EnforceCodeStyleOnBuild>true</EnforceCodeStyleOnBuild>
     <AnalysisMode>Recommended</AnalysisMode>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <!-- Put stuff into a common directory ./.build (bin,obj) -->
-    <BaseOutputPath>$(MSBuildThisFileDirectory).build/bin/$(MSBuildProjectName)/</BaseOutputPath>
-    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory).build/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
-    <!-- Due to https://github.com/dotnet/aspnetcore/issues/25959 we need it relative -->
-    <BaseIntermediateOutputPath>$([MSBuild]::MakeRelative($(MSBuildProjectDirectory), $(BaseIntermediateOutputPath)))</BaseIntermediateOutputPath>
+    <!-- Put stuff into a common directory -->
+    <UseArtifactsOutput>true</UseArtifactsOutput>
     <!-- Don't warn on API docs -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <!-- Error out on warnings when releasing -->
@@ -27,9 +21,5 @@
 
   <ItemGroup>
     <Using Include="System.Collections.Immutable" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
   </ItemGroup>
 </Project>
