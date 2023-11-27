@@ -23,11 +23,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v3
       - name: dotnet publish
-        run: dotnet publish ./src/BSData.GalleryDashboard -c Release -o bin/publish -p:GHPages=true -p:GHPagesBase=https://${{ env.PagesCname }}
+        run: dotnet publish -o artifacts/publish-content -p:GHPages=true -p:GHPagesBase=https://${{ env.PagesCname }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: bin/publish/wwwroot
+          path: artifacts/publish-content/wwwroot
 
   # Deployment job
   deploy:

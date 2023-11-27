@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BSData Status Dashboard</title>
     <base href="/" />
-    <link href="css/app.css" rel="stylesheet" />
-    <link href="BSData.GalleryDashboard.styles.css" rel="stylesheet" />
-    <link href="_content/Microsoft.Fast.Components.FluentUI/css/variables.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="stylesheet" href="BSData.GalleryDashboard.styles.css" />
+    <link rel="icon" type="image/png" href="icon-192.png" />
     <script src="https://cdn.tailwindcss.com/?plugins=typography"></script>
     <script>
         tailwind.config = {
@@ -17,7 +17,13 @@
 </head>
 
 <body>
-    <div id="app">Loading...</div>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.
