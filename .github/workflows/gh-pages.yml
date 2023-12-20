@@ -25,7 +25,7 @@ jobs:
       - name: dotnet publish
         run: dotnet publish -o artifacts/publish-content -p:GHPages=true -p:GHPagesBase=https://${{ env.PagesCname }}
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: artifacts/publish-content/wwwroot
 
