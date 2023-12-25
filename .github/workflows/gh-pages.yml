@@ -21,7 +21,7 @@ jobs:
       PagesCname: gallery.bsdata.net
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v4
       - name: dotnet publish
         run: dotnet publish -o artifacts/publish-content -p:GHPages=true -p:GHPagesBase=https://${{ env.PagesCname }}
       - name: Upload artifact
