@@ -14,7 +14,7 @@ jobs:
       Configuration: Release
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v4
       - run: dotnet restore
       - run: dotnet build --no-restore
       - run: dotnet publish
